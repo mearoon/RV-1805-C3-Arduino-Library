@@ -345,7 +345,7 @@ uint8_t RV1805C3::clearInterrupts() {
 	return (flags >> 1);
 }
 
-void RV1805C3::sleep(bool disableInterface) {
+void RV1805C3::sleep(SleepWaitPeriod_t waitPeriod, bool disableInterface) {
 	uint8_t value;
 
 	if (disableInterface) {
@@ -357,7 +357,8 @@ void RV1805C3::sleep(bool disableInterface) {
 	}
 
 	value = readByteFromRegister(REG_SLEEP_CONTROL);
-	value |= (1 << 7);
+	value |= (1 << 7); // Sleep Request
+	value |= waitPeriod; // Sleep Wait
 	writeByteToRegister(REG_SLEEP_CONTROL, value);
 }
 
@@ -400,7 +401,7 @@ bool RV1805C3::readBytesFromRegisters(uint8_t startAddress, uint8_t *destination
 	_i2cPort->write(startAddress);
 	_i2cPort->endTransmission(false);
 
-	_i2cPort->requestFrom(RV1805C3_ADDRESS, length);
+	_i2cPort->requestFrom((uint8_t) RV1805C3_ADDRESS, length);
 	for (uint8_t i = 0; i < length; i++) {
 		destination[i] = _i2cPort->read();
 	}

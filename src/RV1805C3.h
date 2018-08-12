@@ -117,6 +117,18 @@ enum InterruptType {
 };
 typedef uint8_t InterruptType_t;
 
+enum SleepWaitPeriod {
+	SLEEP_IMMEDIATELY = 0b000,
+	SLEEP_WAIT_8MS = 0b001,
+	SLEEP_WAIT_16MS = 0b010,
+	SLEEP_WAIT_24MS = 0b011,
+	SLEEP_WAIT_32MS = 0b100,
+	SLEEP_WAIT_40MS = 0b101,
+	SLEEP_WAIT_48MS = 0b110,
+	SLEEP_WAIT_56MS = 0b111
+};
+typedef uint8_t SleepWaitPeriod_t;
+
 enum PowerSwitchFunction {
 	PSWS_INVERSE_COMBINED_IRQ = 0b000,
 	PSWS_SQW = 0b001,
@@ -161,7 +173,7 @@ class RV1805C3 {
 		void disableInterrupt(InterruptType_t type);
 		uint8_t clearInterrupts();
 
-		void sleep(bool disableInterface = false);
+		void sleep(SleepWaitPeriod_t waitPeriod = SLEEP_IMMEDIATELY, bool disableInterface = false);
 		void setPowerSwitchFunction(PowerSwitchFunction_t function);
 		void lockPowerSwitch();
 		void unlockPowerSwitch();
