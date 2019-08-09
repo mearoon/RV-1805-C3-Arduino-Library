@@ -56,6 +56,7 @@ void RV1805C3::enableOscillatorSwitching() {
 	value &= 0b11100000;
 	value |= (1 << 4); // Switches to RC oscillator when using backup power
 	value |= (1 << 3); // Switches to RC oscillator when the XT one fails
+	writeByteToRegister(REG_OSC_CONTROL, value);
 }
 
 void RV1805C3::reduceLeakage() {
