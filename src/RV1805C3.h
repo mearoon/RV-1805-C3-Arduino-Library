@@ -1,6 +1,6 @@
 /*
 	Arduino Library for RV-1805-C3
-	
+
 	Copyright (c) 2018 Macro Yau
 
 	https://github.com/MacroYau/RV-1805-C3-Arduino-Library
@@ -9,8 +9,16 @@
 #ifndef RV1805C3_H
 #define RV1805C3_H
 
+#pragma once
+
+#if (ARDUINO >= 100)
 #include "Arduino.h"
-#include "Wire.h"
+#else
+#include "WProgram.h"
+#endif
+
+#include <Wire.h>
+//#include <i2c_t3.h> // see https://github.com/nox771/i2c_t3
 
 #define RV1805C3_ADDRESS		0x69
 
@@ -64,6 +72,7 @@
 #define CONFKEY_REGISTERS		0x9D
 
 #define DATETIME_COMPONENTS		8
+#define TIME_COMPONENTS         4
 
 enum DateTimeComponent {
 	DATETIME_HUNDREDTH = 0,
@@ -152,6 +161,7 @@ class RV1805C3 {
 		void reduceLeakage();
 
 		char* getCurrentDateTime();
+		char* getTimeStamp();
 		void setDateTimeFromISO8601(String iso8601);
 		void setDateTimeFromISO8601(const char *iso8601);
 		void setDateTimeFromHTTPHeader(String str);

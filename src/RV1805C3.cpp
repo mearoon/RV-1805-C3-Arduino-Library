@@ -1,6 +1,6 @@
 /*
 	Arduino Library for RV-1805-C3
-	
+
 	Copyright (c) 2018 Macro Yau
 
 	https://github.com/MacroYau/RV-1805-C3-Arduino-Library
@@ -23,8 +23,11 @@ bool RV1805C3::begin(TwoWire &wirePort) {
 	}
 
 	if (partNumber[0] == PART_NUMBER_MSB && partNumber[1] == PART_NUMBER_LSB) {
-		enableOscillatorSwitching();
-		reduceLeakage();
+		//reset();
+		//enableOscillatorSwitching();
+		//enableCrystalOscillator();
+		//disableCrystalOscillator();
+		//reduceLeakage();
 		return true;
 	} else {
 		return false;
@@ -81,14 +84,31 @@ char* RV1805C3::getCurrentDateTime() {
 
 	// Returns ISO 8601 date time string
 	static char iso8601[23];
-	sprintf(iso8601, "20%02d-%02d-%02dT%02d:%02d:%02d", 
+	sprintf(iso8601, "20%02d-%02d-%02dT%02d:%02d:%02d.%02d",
 			convertToDecimal(_dateTime[DATETIME_YEAR]),
 			convertToDecimal(_dateTime[DATETIME_MONTH]),
 			convertToDecimal(_dateTime[DATETIME_DAY_OF_MONTH]),
 			convertToDecimal(_dateTime[DATETIME_HOUR]),
 			convertToDecimal(_dateTime[DATETIME_MINUTE]),
-			convertToDecimal(_dateTime[DATETIME_SECOND]));
+			convertToDecimal(_dateTime[DATETIME_SECOND]),
+			convertToDecimal(_dateTime[DATETIME_HUNDREDTH]));
+
 	return iso8601;
+}
+
+char* RV1805C3::getTimeStamp() {
+
+	// Updates RTC date time value to array
+	readBytesFromRegisters(REG_TIME_HUNDREDTHS, _dateTime, TIME_COMPONENTS);
+
+	static char timestamp[13];
+	sprintf(timestamp, "%02d:%02d:%02d.%02d",
+			convertToDecimal(_dateTime[DATETIME_HOUR]),
+			convertToDecimal(_dateTime[DATETIME_MINUTE]),
+			convertToDecimal(_dateTime[DATETIME_SECOND]),
+			convertToDecimal(_dateTime[DATETIME_HUNDREDTH]));
+
+	return timestamp;
 }
 
 void RV1805C3::setDateTimeFromISO8601(String iso8601) {
@@ -116,13 +136,13 @@ void RV1805C3::setDateTimeFromHTTPHeader(String str) {
 
 void RV1805C3::setDateTimeFromHTTPHeader(const char* str) {
 	char components[3] = { '0', '0', '\0' };
-	
+
 	// Checks whether the string begins with "Date: " prefix
 	uint8_t counter = 0;
 	if (str[0] == 'D') {
 		counter = 6;
 	}
-	
+
 	// Day of week
 	uint8_t dayOfWeek = 0;
 	if (str[counter] == 'T') {
@@ -220,7 +240,7 @@ void RV1805C3::setDateTimeFromHTTPHeader(const char* str) {
 		components[1] = str[i + 1];
 		buffer[j] = atoi(components);
 	}
-	
+
 	setDateTime(year, month, dayOfMonth, static_cast<DayOfWeek_t>(dayOfWeek), buffer[0], buffer[1], buffer[2], 0);
 }
 
